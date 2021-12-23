@@ -1,0 +1,15 @@
+excludes:
+  paths:
+    - pattern: "plugin/sbt-test/**"
+      reason: "TEST_OF"
+      comment: "This directory is only used for testing and is not part of the released artifacts."
+    - pattern: "scripts/**"
+      reason: "BUILD_TOOL_OF"
+      comment: "Directory is only used for continuous integration. Not included in released artifacts."
+  scopes:
+    - reason: "TEST_DEPENDENCY_OF"
+      pattern: "plugin/sbt-test/*"
+      comment: "Packages for development only. Not part of released artifacts."
+    - pattern: "provided"
+      reason: "PROVIDED_DEPENDENCY_OF"
+      comment: "Packages provided at runtime by the JDK or container only."

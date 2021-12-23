@@ -1,0 +1,62 @@
+name: Test
+
+# Controls when the workflow will run
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        fetch-depth: 0
+
+    - name: Set up JDK 8
+      uses: actions/setup-java@v3
+      with:
+        java-version: '8'
+        distribution: 'adopt'
+
+    - name: Cache SBT
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.ivy2/cache
+          ~/.sbt
+        key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt', 'project/**') }}
+
+    - name: load-here-secret
+      env:
+        OLP_CREDENTIALS: ${{ secrets.OLP_CREDENTIALS }}
+      run: mkdir -p ~/.here/ && echo $OLP_CREDENTIALS | base64 --decode > ~/.here/credentials.properties
+
+    - name: load-ivy2-secret
+      env:
+        SBT_CREDENTIALS: ${{ secrets.SBT_CREDENTIALS }}
+      run: mkdir -p ~/.ivy2/ && echo $SBT_CREDENTIALS | base64 --decode > ~/.ivy2/.credentials
+
+    - name: build
+      run: sbt ';sbt-bom / scripted' -Dsbt.boot.credentials="~/.ivy2/.credentials"
+
+    - name: test
+      run: sbt clean coverageOn coverage test coverageReport
+
+    - name: update-version
+      run: |
+        CURRENT_VERSION=$(git fetch &>/dev/null; git tag -l --sort=taggerdate | grep -vE '[a-zA-Z]' | tail -n 1)
+        echo "CURRENT_VERSION=${CURRENT_VERSION}" | tee current-version.env
+        sed -i "s/0.0.0-SNAPSHOT/$CURRENT_VERSION/g" version.sbt
+
+    - name: package
+      run: sbt package
