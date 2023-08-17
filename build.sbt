@@ -11,7 +11,9 @@ val organizationSettings: Seq[Setting[_]] = Seq(
       "The sbt-bom plugin sbt-bom plugin provides a way to use Maven BOM (bill of materials) in sbt projects",
     homepage = Some(url("http://here.com")),
     startYear = Some(2021),
-    licenses = Vector(),
+    licenses = Vector(
+      "Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")
+    ),
     organizationName = "HERE Europe B.V",
     organizationHomepage = Some(url("http://here.com")),
     scmInfo = Some(
@@ -115,15 +117,6 @@ lazy val publishSettings = Seq(
     case other => other
   }
 )
-
-pomExtra :=
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
 
 ThisBuild / scalacOptions ++= scalaCompilerOptions
 Global / onChangedBuildSource := ReloadOnSourceChanges
