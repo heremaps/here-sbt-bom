@@ -1,5 +1,6 @@
 import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 import sbtrelease.Version
+import scala.xml._
 
 val organizationSettings: Seq[Setting[_]] = Seq(
   scalaVersion := "2.12.15",
@@ -101,8 +102,18 @@ lazy val publishSettings = Seq(
   },
   pomIncludeRepository := { _ => false },
   publishMavenStyle := true,
-  makePom / publishArtifact := false,
-  publishConfiguration := publishConfiguration.value.withOverwrite(true)
+  publishConfiguration := publishConfiguration.value.withOverwrite(true),
+  pomPostProcess := {
+    //    replace artifactId from `sbt-bom` to `sbt-bom_<scala_binary_version>_<sbt_binary_version>` in the generated pom.xml file https://github.com/sbt/sbt/issues/3410
+    case elem: Elem =>
+      val updatedChildNodes = elem.child.map {
+        case childElem: Elem if childElem.label == "artifactId" =>
+          childElem.copy(child = Text("sbt-bom_2.12_1.0"))
+        case other => other
+      }
+      elem.copy(child = updatedChildNodes)
+    case other => other
+  }
 )
 
 pomExtra :=
