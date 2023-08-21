@@ -1,5 +1,5 @@
 [![Build Status](https://github.com/heremaps/here-sbt-bom/actions/workflows/release.yml/badge.svg)](https://github.com/heremaps/here-sbt-bom/actions?query=workflow%3ARelease+branch%3Amaster)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.here.platform/sbt-bom_2.12_1.0/badge.svg)](https://search.maven.org/artifact/com.here.platform/sbt-bom_2.12_1.0)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.here.platform/root_2.12/badge.svg)](https://search.maven.org/artifact/com.here.platform/sbt-bom_2.12_1.0)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 # HERE SBT BOM plugin
