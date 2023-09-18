@@ -1,5 +1,7 @@
 import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 import sbtrelease.Version
+import scala.xml.{Node => XmlNode, NodeSeq => XmlNodeSeq, _}
+import scala.xml.transform._
 
 val organizationSettings: Seq[Setting[_]] = Seq(
   scalaVersion := "2.12.15",
@@ -101,11 +103,20 @@ lazy val publishSettings = Seq(
   },
   pomIncludeRepository := { _ => false },
   publishMavenStyle := true,
-  makePom / publishArtifact := false,
-  publishConfiguration := publishConfiguration.value.withOverwrite(true)
+  publishConfiguration := publishConfiguration.value.withOverwrite(true),
+  pomPostProcess := { node: XmlNode =>
+    val rule = new RewriteRule {
+      override def transform(n: XmlNode): XmlNodeSeq = n match {
+        case e: Elem if e != null && e.label == "artifactId" && e.text == "sbt-bom" =>
+          <artifactId>sbt-bom_2.12_1.0</artifactId>
+        case _ => n
+      }
+    }
+    new RuleTransformer(rule).transform(node).head
+  }
 )
 
-pomExtra :=
+ThisBuild / pomExtra :=
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
