@@ -77,7 +77,7 @@ host=repo.platform.here.com
 user=<your used id>
 password=<top secret password>
 ```
-The user name and password can be retrieved as described in the [Get your repository credentials tutorial](https://developer.here.com/documentation/java-scala-dev/dev_guide/topics/get-credentials.html#get-your-repository-credentials).
+The user name and password can be retrieved as described in the [Get your repository credentials tutorial](https://www.here.com/docs/bundle/here-workspace-developer-guide-java-scala/page/topics/get-credentials.html#get-your-repository-credentials).
 
 Then include the credentials in `build.sbt` file:
 ```sbt
@@ -91,9 +91,9 @@ ThisBuild / resolvers += (
   "HERE Platform Repository" at "https://repo.platform.here.com/artifactory/open-location-platform"
 )
 ```
-Now the project is configured to use BOM files from a password-protected repository. For example, [`sdk-batch-bom`](https://developer.here.com/documentation/java-scala-dev/dev_guide/sdk-libraries.html#sdk-libraries-for-batch-primary) can be used.
+Now the project is configured to use BOM files from a password-protected repository. For example, [`sdk-batch-bom`](https://www.here.com/docs/bundle/here-workspace-developer-guide-java-scala/page/sdk-libraries.html#sdk-libraries-for-batch-primary) can be used.
 ```sbt
-lazy val sdkBom = Bom.read("com.here.platform" %% "sdk-batch-bom" % "2.52.8")(bom => Dependencies(bom))
+lazy val sdkBom = Bom.read("com.here.platform" %% "sdk-batch-bom" % "2.57.3")(bom => Dependencies(bom))
 ```
 
 The credentials can be supplied through these methods, with the following precedence:
