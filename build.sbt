@@ -103,19 +103,8 @@ lazy val publishSettings = Seq(
   },
   pomIncludeRepository := { _ => false },
   publishMavenStyle := true,
-  publishConfiguration := publishConfiguration.value.withOverwrite(true),
-  pomPostProcess := { node: XmlNode =>
-    val rule = new RewriteRule {
-      override def transform(n: XmlNode): XmlNodeSeq = n match {
-        case e: Elem if e != null && e.label == "artifactId" && e.text == "sbt-bom" =>
-          <artifactId>sbt-bom_2.12_1.0</artifactId>
-        case _ => n
-      }
-    }
-    new RuleTransformer(rule).transform(node).head
-  }
+  publishConfiguration := publishConfiguration.value.withOverwrite(true)
 )
-
 
 ThisBuild / pomExtra :=
   <licenses>
