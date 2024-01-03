@@ -116,6 +116,7 @@ lazy val publishSettings = Seq(
   }
 )
 
+
 ThisBuild / pomExtra :=
   <licenses>
     <license>
