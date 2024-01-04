@@ -4,11 +4,74 @@
 
 The team gratefully accepts contributions via [pull requests](https://help.github.com/articles/about-pull-requests/).
 
-## Tests
+## Build
+To build the project run the command: `sbt package`.
+To publish the plugin into the local Maven repository run the command `sbt publishM2`. The plugin will be published with the `0.0.0-SNAPSHOT` version.
 
-The project has integration tests based on `scripted test framework`.
+## Run Tests
+
+### Unit tests
+
+The project has unit tests based on `scalatest` and `scalamock`. To run the tests run the command: `sbt test`.
+
+### Integration Tests
+
+The project has integration tests based on a `scripted test framework`.
 See https://www.scala-sbt.org/1.x/docs/Testing-sbt-plugins.html
-Command to run the tests: `sbt ';sbt-bom / scripted'`
+Tests split into 2 groups
+- `psv` - run on any branch. These tests group **mustn't** rely on the secrets
+- `sv` - run only on master.
+Command to run the psv acceptance tests: `sbt ';sbt-bom / scripted psv/*'`
+
+## Continuous Integration
+
+The CI is run on GitHub, meaning that files in the `.github` folder are used to define the workflows.
+
+### Presubmit Verification
+The purpose of this verification is to do a check that the code is not broken.
+
+The presubmit verification does the following:
+
+#### `Check` workflow
+
+##### `sbt-header-check` step
+This step checks the availability of the appropriate license in all `.scala` files in the project. This step fails if the license in some files contains an inappropriate license or is absent.
+If the step fails, set the appropriate license in these source files. An appropriate license can be found in the [LICENSE](LICENSE) file.
+
+##### `sbt-scala-formatter-check` step
+This step checks the code style in all `.scala` and `.sbt` files in the project. This job fails if the code is not formatted properly.
+
+#### `Test` workflow
+
+##### `scripted-test-psv` step
+This step runs integration tests located in the `plugin/src/sbt-test/psv` folder
+
+##### `test` step
+This step runs unit tests and evaluates test coverage
+
+#### `update-version` step
+This step updates the version in `version.sbt` with value from the latest git tag
+
+#### `package` step
+This step packages the plugin into the jar file.
+
+### Submit Verification
+The purpose of this workflow is to verify that the `master` branch is always in the `ready for a deploy`
+state and release the plugin into the [Maven Central repository](https://repo.maven.apache.org/maven2/com/here/platform/sbt-bom_2.12_1.0/).
+
+The submit verification runs all the [Presubmit Verification](#presubmit-verification) workflows with the following additional steps:
+#### `Test` workflow
+
+##### `scripted-test-sv` step
+This step runs integration tests located in the `plugin/src/sbt-test/sv` folder
+
+#### `Release` workflow
+
+##### `Push git tag` step
+The step increments the current version and pushes a new git tag
+
+##### `Deploy` step
+This step releases the plugin to the [Maven Central repository](https://repo.maven.apache.org/maven2/com/here/platform/sbt-bom_2.12_1.0/).
 
 ## Coding Standards
 

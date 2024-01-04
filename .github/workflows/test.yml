@@ -46,8 +46,12 @@ jobs:
         SBT_CREDENTIALS: ${{ secrets.SBT_CREDENTIALS }}
       run: mkdir -p ~/.ivy2/ && echo $SBT_CREDENTIALS | base64 --decode > ~/.ivy2/.credentials
 
-    - name: build
-      run: sbt ';sbt-bom / scripted' -Dsbt.boot.credentials="~/.ivy2/.credentials"
+    - name: scripted-test-psv
+      run: sbt ';sbt-bom / scripted psv/*' -Dsbt.boot.credentials="~/.ivy2/.credentials"
+
+    - name: scripted-test-sv
+      if: github.ref == 'refs/heads/master'
+      run: sbt ';sbt-bom / scripted sv/*' -Dsbt.boot.credentials="~/.ivy2/.credentials"
 
     - name: test
       run: sbt clean coverageOn coverage test coverageReport
