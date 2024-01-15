@@ -110,6 +110,6 @@ The credentials can be supplied through these methods, with the following preced
 - Dmitry Abramov (https://github.com/dmitriy-abramov)
 
 ## License
-Copyright (C) 2019-2023 HERE Europe B.V.
+Copyright (C) 2019-2024 HERE Europe B.V.
 
 Unless otherwise noted in `LICENSE` files for specific files or directories, the [LICENSE](LICENSE) in the root applies to all content in this repository.
