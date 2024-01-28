@@ -155,6 +155,13 @@ class BomReader(pomLocator: IvyPomLocator, logger: Logger, scalaBinaryVersion: S
             sys.error(s"Version for ${normalized.group}.${normalized.name} not found in BOM")
           )
       }
+
+      override def bomDependencies: Seq[ModuleID] = {
+        effectiveVersions.map { case ((group, name), version) =>
+          ModuleID(group, name, version)
+        }.toSeq
+      }
+
     }
   }
 
