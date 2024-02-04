@@ -140,6 +140,7 @@ The credentials can be supplied through these methods, with the following preced
 - Andrii Banias (https://github.com/abanias)
 - Anton Wilhelm (https://github.com/devtonhere)
 - Dmitry Abramov (https://github.com/dmitriy-abramov)
+- Gaël Jourdan-Weil (https://github.com/gaeljw)
 
 ## License
 Copyright (C) 2019-2024 HERE Europe B.V.
