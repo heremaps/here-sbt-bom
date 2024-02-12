@@ -44,6 +44,8 @@ class BomReaderSpec extends AnyFlatSpec with Matchers with MockFactory {
 
     val dependency = "com.test" %% "test_module" % bom
     dependency.revision should be("1.0")
+
+    bom.bomDependencies shouldBe Seq("com.test" % "test_module_2.12" % "1.0")
   }
 
   "BomReader" should "assemble the BOM correctly with parent" in {
@@ -55,13 +57,15 @@ class BomReaderSpec extends AnyFlatSpec with Matchers with MockFactory {
 
     (pomLocatorMock.getPomFile _)
       .expects(where((moduleId: NormalizedArtifact) => {
-        moduleId.group.equals("com.test") && moduleId.name.equals("test_bom_parent") && moduleId.version.equals("1.0")
+        moduleId.group.equals("com.test") && moduleId.name
+          .equals("test_bom_parent") && moduleId.version.equals("1.0")
       }))
       .returns(Some(createMockPomFile("com.test", "test_bom_parent", "1.0", false)))
 
     (pomLocatorMock.getPomFile _)
       .expects(where((moduleId: NormalizedArtifact) => {
-        moduleId.group.equals("com.test") && moduleId.name.equals("test_bom") && moduleId.version.equals("1.0")
+        moduleId.group.equals("com.test") && moduleId.name.equals("test_bom") && moduleId.version
+          .equals("1.0")
       }))
       .returns(Some(createMockPomFile("com.test", "test_bom", "1.0", true)))
 
@@ -70,9 +74,16 @@ class BomReaderSpec extends AnyFlatSpec with Matchers with MockFactory {
 
     val dependency = "com.test" %% "test_module" % bom
     dependency.revision should be("1.0")
+
+    bom.bomDependencies shouldBe Seq("com.test" % "test_module_2.12" % "1.0")
   }
 
-  private def createMockPomFile(groupId: String, artifactId: String, version: String, addParent: Boolean): File = {
+  private def createMockPomFile(
+      groupId: String,
+      artifactId: String,
+      version: String,
+      addParent: Boolean
+  ): File = {
     val tempFile = File.createTempFile("mock", ".xml")
 
     val pomContent =
@@ -81,8 +92,7 @@ class BomReaderSpec extends AnyFlatSpec with Matchers with MockFactory {
          |  <groupId>$groupId</groupId>
          |  <artifactId>$artifactId</artifactId>
          |  <version>$version</version>
-         |  ${
-        if (addParent)
+         |  ${if (addParent)
           s"""
              |  <parent>
              |    <groupId>$groupId</groupId>
@@ -101,8 +111,7 @@ class BomReaderSpec extends AnyFlatSpec with Matchers with MockFactory {
              |         |      </dependency>
              |         |    </dependencies>
              |</dependencyManagement>
-             |""".stripMargin
-      }
+             |""".stripMargin}
          |</project >
          | """.stripMargin
 

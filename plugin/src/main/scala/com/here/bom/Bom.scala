@@ -55,6 +55,10 @@ object Bom {
     }
   }
 
+  def dependencies(bomArtifact: ModuleID): Def.Setting[Seq[ModuleID]] = {
+    read(bomArtifact)(bom => bom.bomDependencies)
+  }
+
   implicit def addBomSyntax(dep: OrganizationArtifactName): BomSyntax = new BomSyntax(dep)
 
   class BomSyntax(dep: OrganizationArtifactName) {
@@ -85,4 +89,9 @@ object Bom {
 
 trait Bom {
   def version(dependency: OrganizationArtifactName): String
+
+  /**
+   * List of all dependencies declared in the BOM
+   */
+  def bomDependencies: Seq[ModuleID]
 }
