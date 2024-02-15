@@ -42,7 +42,9 @@ object Bom {
     key := {
       val logger = (update / sLog).value
       val ivyConfig = InlineIvyConfiguration()
-        .withResolvers((update / resolvers).value.to)
+        .withResolvers(
+          ((update / resolvers).value ++ (update / appResolvers).value.getOrElse(Seq.empty)).to
+        )
         .withUpdateOptions((update / updateOptions).value)
       loadCredentials(logger)
       val depRes = new DependencyResolutionProxy(IvyDependencyResolution(ivyConfig))
