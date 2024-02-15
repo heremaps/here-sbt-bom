@@ -14,7 +14,6 @@ While there is no official support by HERE, you may still raise issues via GitHu
 
 ## Prerequisites
 This plugin is compatible with:
-- Scala 2.12
 - sbt 1.3.0 or newer
 
 ## How to use it
@@ -27,6 +26,8 @@ Add the `sbt-bom` plugin to `plugins.sbt` file.
 addSbtPlugin("com.here.platform" % "sbt-bom" % "1.0.7")
 ```
 
+#### Add Maven central repository in your resolvers
+
 If you're encountering issues or using earlier versions, you might have to explicitly declare the Maven Central repository:
 ```scala
 resolvers += Resolver.url(
@@ -38,63 +39,96 @@ This will enable the project to access plugin files stored in Maven Central, htt
 
 ### Read & use a BOM
 
-#### In a `dependencyOverrides` context
+There are different ways to use the plugin depending on your use case.
 
-If you want to get all the dependencies declared in the BOM and use their version to override yours, follow this step.
-If you're looking for more control, go to the [general context](#in-a-general-context) section below.
+#### Use it in `dependencyOverrides`  (`Bom.dependencies`)
 
-Add BOM dependency to the `build.sbt`:
+If you want to get all the dependencies declared in the BOM and use their version to override yours.
+
+Use the following setup in your `build.sbt`:
 ```scala
 import com.here.bom.Bom
+
+// Declare the BOM
+// Note the usage of Bom.dependencies method
 lazy val jacksonDependencies = Bom.dependencies("com.fasterxml.jackson" % "jackson-bom" % "2.14.2")
-```
 
-This creates an sbt `Setting` that resolves the list of `ModuleID` declared in a desired BOM.
-
-Enable this setting in the module configuration and use this setting in `dependencyOverrides`:
-```scala
 lazy val `demo` = project
   .in(file("."))
+  // Load the BOM
   .settings(jacksonDependencies)
+  // Add all dependencies of the BOM in dependencyOverrides
   .settings(
     dependencyOverrides ++= jacksonDependencies.key.value
   )
 ```
 
-#### In a general context
+#### Use it in `dependencyOverrides` and `libraryDependencies` (`Bom.apply`)
 
-Add BOM dependency to the `build.sbt`:
+If you want to:
+- get all the dependencies declared in the BOM and use their version to override yours,
+- also use the version of a BOM dependency explicitly
+
+Use the following setup in your `build.sbt`:
 ```scala
 import com.here.bom.Bom
-lazy val jacksonBom = Bom.read("com.fasterxml.jackson" % "jackson-bom" % "2.14.2")(bom => Dependencies(bom))
+
+// Declare the BOM
+// Note the usage of Bom.apply method
+lazy val jacksonBom = Bom("com.fasterxml.jackson" % "jackson-bom" % "2.14.2")
+
+lazy val `demo` = project
+  .in(file("."))
+  // Load the BOM
+  .settings(jacksonBom)
+  // Add some explicit dependencies
+  .settings(
+    libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % jacksonBom.key.value
+  )
+  // Add all dependencies of the BOM in dependencyOverrides
+  .settings(
+    dependencyOverrides ++= jacksonBom.key.value.bomDependencies
+  )
 ```
 
-This creates an sbt `Setting` that resolves a desired BOM, creates a `Bom` object from it and then builds a `Dependencies` object.
-Under the `project` directory, create a `Dependencies` class that takes a `Bom` as a constructor parameter.
-Inside this class, we can refer to the versions from the BOM.
-The class should expose a list of dependencies that used as `libraryDependencies`
+#### Custom usage (`Bom.read`)
+
+In addition to the common usages described above, you can also use the BOM in a custom way thanks to `Bom.read`.
+
+Example, in your `build.sbt`:
+```scala
+import com.here.bom.Bom
+
+// Declare the BOM and map it to a custom class
+// Note the usage of Bom.read method
+lazy val jacksonDependencies = Bom.read("com.fasterxml.jackson" % "jackson-bom" % "2.14.2")(bom => Dependencies(bom))
+
+lazy val `demo` = project
+  .in(file("."))
+  // Load the BOM
+  .settings(jacksonDependencies)
+  // Add some explicit dependencies
+  .settings(
+    libraryDependencies ++= jacksonDependencies.key.value.someDependencies
+  )
+  // Add all dependencies of the BOM in dependencyOverrides
+  .settings(
+    dependencyOverrides ++= jacksonDependencies.key.value.allDependencies
+  )
+```
+
+And in a `project/Dependencies.scala` file:
 ```scala
 import sbt._
 import com.here.bom.Bom
 
 case class Dependencies(bom: Bom) {
-  val dependencies: Seq[ModuleID] = Seq(
-    "com.fasterxml.jackson.core" % "jackson-databind" % bom
+  val someDependencies: Seq[ModuleID] = Seq(
+    "com.fasterxml.jackson.core" % "jackson-core" % bom
   )
   
-  // Note: you may also use bom.bomDependencies which gives you the list of all dependencies declared in the BOM.
-  // This gives the same result as Bom.dependencies (see above).
+  val allDependencies: Seq[ModuleID] = bom.bomDependencies
 }
-```
-
-Enable this setting in the module configuration and use this setting in `libraryDependencies`:
-```scala
-lazy val `demo` = project
-  .in(file("."))
-  .settings(jacksonBom)
-  .settings(
-    libraryDependencies ++= jacksonBom.key.value.dependencies
-  )
 ```
 
 ### Password-protected repositories
