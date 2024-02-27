@@ -184,8 +184,7 @@ class BomReader(pomLocator: IvyPomLocator, logger: Logger, scalaBinaryVersion: S
       rest match {
         case Nil => acc
         case (m, reader) :: children => {
-          val updatedProps = new Props(cumulativeProps)
-          updatedProps.putAll(reader.getPomProperties.asInstanceOf[Props])
+          val updatedProps = mergeProperties(reader, cumulativeProps)
           val res = (ResolvedBom(m, reader, updatedProps), prio)
           attachInheritedProps(children, res :: acc, updatedProps, prio - 1)
         }
@@ -193,6 +192,17 @@ class BomReader(pomLocator: IvyPomLocator, logger: Logger, scalaBinaryVersion: S
     }
 
     attachInheritedProps(chain, Nil, rootProps, rootPriority)
+  }
+
+  private def mergeProperties(reader: PomReader, props: Props): Props = {
+    val into = new Props(props)
+    into.putAll(reader.getPomProperties.asInstanceOf[Props])
+    into.put("project.version", reader.getVersion)
+    into.put("project.groupId", reader.getGroupId)
+    into.put("project.artifactId", reader.getArtifactId)
+    into.put("project.packaging", reader.getPackaging)
+    into.put("project.description", reader.getDescription)
+    into
   }
 
   private def buildParentsChain(
