@@ -168,6 +168,14 @@ The credentials can be supplied through these methods, with the following preced
 3. By creating the file `~/.sbt/.credentials` in your home directory.
 4. By creating the file `~/.ivy2/.credentials` in your home directory.
 
+### Resolving issues
+If your project packaging fails, you can examine the plugin debug logs using the following commands:
+```shell
+sbt package
+sbt last
+```
+This sequence of commands will print all the logs generated during packaging to the console.
+
 ## Contributors
 - Evgenii Kuznetcov (https://github.com/simpadjo)
 - Oleksandr Vyshniak (https://github.com/molekyla)

@@ -68,6 +68,7 @@ class BomReader(pomLocator: IvyPomLocator, logger: Logger, scalaBinaryVersion: S
       .getPomFile(moduleId)
       .getOrElse(sys.error(s"Failed to resolve ${moduleId}"))
     val url = pomFile.asURL
+    logger.debug(f"Reading pom file $url")
     new PomReader(url, new URLResource(url))
   }
 
@@ -146,6 +147,8 @@ class BomReader(pomLocator: IvyPomLocator, logger: Logger, scalaBinaryVersion: S
       .groupBy(e => (e._1.group, e._1.name))
       .mapValues(chooseBestVersion)
 
+    logger.debug(s"Effective resolved versions: $effectiveVersions")
+
     new Bom {
       override def version(dependency: OrganizationArtifactName): String = {
         val normalized = NormalizedArtifact.fromModule(dependency % "whatever", scalaBinaryVersion)
@@ -170,6 +173,7 @@ class BomReader(pomLocator: IvyPomLocator, logger: Logger, scalaBinaryVersion: S
       priority: Priority
   ): List[(ResolvedBom, Priority)] = {
     val chain = buildParentsChain(module)
+    logger.debug(f"Resolved parents chain for the module: $module: $chain")
     val rootProps = new Props()
     rootProps.put("scala.compat.version", scalaBinaryVersion)
     val rootPriority = priority + chain.size - 1
@@ -191,7 +195,9 @@ class BomReader(pomLocator: IvyPomLocator, logger: Logger, scalaBinaryVersion: S
       }
     }
 
-    attachInheritedProps(chain, Nil, rootProps, rootPriority)
+    val tuples = attachInheritedProps(chain, Nil, rootProps, rootPriority)
+    logger.debug(f"Inherited properties: $rootProps")
+    tuples
   }
 
   private def mergeProperties(reader: PomReader, props: Props): Props = {
@@ -233,6 +239,8 @@ class BomReader(pomLocator: IvyPomLocator, logger: Logger, scalaBinaryVersion: S
           evalOrFail(reader.getParentArtifactId),
           evalOrFail(reader.getParentVersion)
         )
+
+        logger.debug(f"Module $module has parent $parent")
 
         go(parent, (current, reader) :: acc)
       } else {

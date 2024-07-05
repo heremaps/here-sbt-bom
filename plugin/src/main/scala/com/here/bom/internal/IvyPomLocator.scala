@@ -106,12 +106,14 @@ class IvyPomLocator(resolver: DependencyResolutionProxy, ivyHome: File, logger: 
       s"/cache/${moduleId.group}/${moduleId.name}/ivy-${moduleId.version}.xml.original"
     )
     if (localIvyPomLocation.exists()) {
+      logger.debug(f"Found local pom file: $localIvyPomLocation")
       Some(localIvyPomLocation)
     } else {
       val ivyPropsFile = new File(
         ivyHome,
         s"/cache/${moduleId.group}/${moduleId.name}/ivydata-${moduleId.version}.properties"
       )
+      logger.debug(f"Trying to load local pom file: $ivyPropsFile")
       referencedPomLocation(ivyPropsFile)
     }
   }
@@ -128,11 +130,17 @@ class IvyPomLocator(resolver: DependencyResolutionProxy, ivyHome: File, logger: 
 
       val locationKey =
         properties.keys().asScala.find(key => key.asInstanceOf[String].endsWith(".location"))
+      if (locationKey.isEmpty) {
+        logger.warn(f"No *.location entry in the file $ivyPropertyFile")
+      }
       locationKey.map(k => {
         val f = new File(properties.getProperty(k.asInstanceOf[String]))
         require(f.exists(), s"File $f doesn't exist, is artifact cache corrupted?")
         f
       })
-    } else None
+    } else {
+      logger.debug(f"File: $ivyPropertyFile not exists")
+      None
+    }
   }
 }
