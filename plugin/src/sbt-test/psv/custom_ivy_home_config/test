@@ -1,0 +1,10 @@
+> set scriptedBufferLog := false
+> eval System.setProperty("ivy.home", "/tmp/custom-ivy-home")
+> eval System.setProperty("sbt.ivy.home", "/tmp/custom-sbt-ivy-home")
+# check that build failed for the different custom home locations
+-> reload
+> eval System.setProperty("sbt.ivy.home", "/tmp/custom-ivy-home")
+> eval System.setProperty("ivy.home", "/tmp/custom-ivy-home")
+# check that build succeeded for the same custom home locations
+> reload
+> package
