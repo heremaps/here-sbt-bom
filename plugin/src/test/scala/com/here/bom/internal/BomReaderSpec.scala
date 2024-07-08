@@ -30,7 +30,7 @@ class BomReaderSpec extends AnyFlatSpec with Matchers with MockFactory {
 
   "BomReader" should "assemble the BOM correctly" in {
     val pomLocatorMock = mock[IvyPomLocator]
-    val loggerMock = mock[Logger]
+    val loggerMock = stub[Logger]
     val scalaBinaryVersion = "2.12"
 
     val bomReader = new BomReader(pomLocatorMock, loggerMock, scalaBinaryVersion)
@@ -50,7 +50,7 @@ class BomReaderSpec extends AnyFlatSpec with Matchers with MockFactory {
 
   "BomReader" should "assemble the BOM correctly with parent" in {
     val pomLocatorMock = mock[IvyPomLocator]
-    val loggerMock = mock[Logger]
+    val loggerMock = stub[Logger]
     val scalaBinaryVersion = "2.12"
 
     val bomReader = new BomReader(pomLocatorMock, loggerMock, scalaBinaryVersion)

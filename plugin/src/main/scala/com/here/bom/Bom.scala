@@ -47,6 +47,7 @@ object Bom {
         )
         .withUpdateOptions((update / updateOptions).value)
       loadCredentials(logger)
+      logger.debug(f"Ivy configuration used for the BOM dependency resolution: $ivyConfig")
       val depRes = new DependencyResolutionProxy(IvyDependencyResolution(ivyConfig))
       val ivyHome = (update / Keys.ivyPaths).value.ivyHome.get
       IvyPomLocator.tweakIvyHome(logger)
@@ -68,19 +69,22 @@ object Bom {
   }
 
   private def loadCredentials(logger: Logger): Unit = {
-    val filePaths: Seq[File] = Seq(
+    val credentialFiles = Seq(
       Option(sys.props("sbt.boot.credentials"))
         .filter(s => s != null && s.nonEmpty)
         .map(new File(_)),
       sys.env.get("SBT_CREDENTIALS").map(new File(_)),
       Some(Path.userHome / ".ivy2" / ".credentials"),
       Some(Path.userHome / ".sbt" / ".credentials")
-    ).flatten
+    )
+    logger.debug(s"Credentials load order: $credentialFiles")
+    val filePaths: Seq[File] = credentialFiles.flatten
     filePaths.find(_.exists()) match {
       case Some(file) =>
-        logger.info(s"Loading credentials from file $file")
+        logger.debug(s"Loading credentials from file $file")
         Credentials.loadCredentials(file) match {
           case Right(d) =>
+            logger.debug(s"Credentials loaded from file $file")
             CredentialsStore.INSTANCE.addCredentials(d.realm, d.host, d.userName, d.passwd)
           case Left(error) => logger.warn(s"Failed to load credentials: $error")
         }
