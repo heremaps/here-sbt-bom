@@ -23,7 +23,7 @@ The following text provides a step-by-step guide on how to import [Jackson BOM](
 
 Add the `sbt-bom` plugin to `plugins.sbt` file.
 ```scala
-addSbtPlugin("com.here.platform" % "sbt-bom" % "1.0.7")
+addSbtPlugin("com.here.platform" % "sbt-bom" % "1.0.14")
 ```
 
 #### Add Maven central repository in your resolvers
