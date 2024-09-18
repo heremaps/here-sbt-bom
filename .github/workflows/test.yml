@@ -21,9 +21,11 @@ jobs:
       with:
         ref: ${{ github.event.pull_request.head.sha }}
         fetch-depth: 0
-    - uses: fabasoad/skip-workflow-action@v1.0.0
-      with:
-        message: '[skip release]'
+
+    - name: Check commit message for [skip release]
+      run: |
+        git log -1 --pretty=%B | grep -q "\[skip release\]" && echo "Skipping release as per commit message" && exit 1 || echo "Proceeding with release"    
+
     - name: Set up JDK 8
       uses: actions/setup-java@v3
       with:
