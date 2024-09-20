@@ -23,7 +23,7 @@ import sbt.util.Logger
 
 import java.io.FileInputStream
 import java.util.Properties
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.*
 
 object IvyPomLocator {
   /*
@@ -42,30 +42,26 @@ object IvyPomLocator {
   def tweakIvyHome(logger: Logger): Unit = {
     var sbtIvyHome = System.getProperty("sbt.ivy.home")
     var ivyHome = System.getProperty("ivy.home")
-    if (sbtIvyHome == null && ivyHome == null)
-      return
-
-    if (sbtIvyHome != ivyHome) {
-      if (sbtIvyHome != null && ivyHome != null) {
+    if (sbtIvyHome != null && ivyHome != null) {
+      sbtIvyHome = convertToAbsolutePath(sbtIvyHome)
+      ivyHome = convertToAbsolutePath(ivyHome)
+      if (sbtIvyHome != ivyHome) {
         logger.error(
           s"System properties ivy.home and sbt.ivy.home have different values: $ivyHome and $sbtIvyHome. Consider use the same value"
         )
         throw new RuntimeException(
           "System properties ivy.home and sbt.ivy.home must have same value"
         )
-      } else if (sbtIvyHome != null) {
-        sbtIvyHome = convertToAbsolutePath(sbtIvyHome)
-        ivyHome = sbtIvyHome
-      } else if (ivyHome != null) {
-        ivyHome = convertToAbsolutePath(ivyHome)
-        sbtIvyHome = ivyHome
       }
-    } else {
+      adjustSystemProperty(logger, "sbt.ivy.home", sbtIvyHome)
+      adjustSystemProperty(logger, "ivy.home", ivyHome)
+    } else if (sbtIvyHome != null) {
       sbtIvyHome = convertToAbsolutePath(sbtIvyHome)
-      ivyHome = sbtIvyHome
+      adjustSystemProperty(logger, "sbt.ivy.home", sbtIvyHome)
+    } else if (ivyHome != null) {
+      ivyHome = convertToAbsolutePath(ivyHome)
+      adjustSystemProperty(logger, "sbt.ivy.home", sbtIvyHome)
     }
-    adjustSystemProperty(logger, "sbt.ivy.home", sbtIvyHome)
-    adjustSystemProperty(logger, "ivy.home", ivyHome)
   }
 
   private def adjustSystemProperty(
