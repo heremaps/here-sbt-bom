@@ -1,0 +1,10 @@
+> set scriptedBufferLog := false
+> eval System.setProperty("sbt.ivy.home", System.getProperty("java.io.tmpdir")+"/test-sbt-bom-cache")
+> eval System.setProperty("ivy.home", System.getProperty("java.io.tmpdir")+"/test-sbt-bom-cache")
+> set ivyPaths := IvyPaths.apply(file(System.getProperty("java.io.tmpdir")+"/test-sbt-bom-cache"), file(System.getProperty("java.io.tmpdir")+"/test-sbt-bom-cache"))
+> reload
+> package
+# check that declared dependency descriptor downloaded and stored in the ivy cache dir
+> akkaDepsDescriptorExist
+# check that transient dependency (io.grpc:grpc-core) descriptor is not downloaded during resolution
+> akkaGrpcRuntimeDescriptorNotExist
