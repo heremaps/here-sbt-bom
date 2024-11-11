@@ -90,7 +90,7 @@ class IvyPomLocator(resolver: DependencyResolutionProxy, ivyHome: File, logger: 
       val dummyDir = new File("target/boms")
       logger.info(s"Resolving ${moduleId}")
       resolver.retrieve(
-        resolver.wrapDependencyInModule(moduleId.asModule()),
+        resolver.wrapDependencyInModule(moduleId.asModule().intransitive()),
         dummyDir,
         logger
       ) match {
