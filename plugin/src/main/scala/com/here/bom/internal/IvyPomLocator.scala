@@ -58,9 +58,11 @@ object IvyPomLocator {
     } else if (sbtIvyHome != null) {
       sbtIvyHome = convertToAbsolutePath(sbtIvyHome)
       adjustSystemProperty(logger, "sbt.ivy.home", sbtIvyHome)
+      adjustSystemProperty(logger, "ivy.home", sbtIvyHome)
     } else if (ivyHome != null) {
       ivyHome = convertToAbsolutePath(ivyHome)
-      adjustSystemProperty(logger, "sbt.ivy.home", sbtIvyHome)
+      adjustSystemProperty(logger, "sbt.ivy.home", ivyHome)
+      adjustSystemProperty(logger, "ivy.home", ivyHome)
     }
   }
 
