@@ -22,7 +22,7 @@ jobs:
 
     - name: Check Skip Commit
       id: checkskip
-      run: if [[ $(git log -1 --pretty=format:"%s") =~ "\[skip release\]" ]]; then false; else true; fi
+      run: if [[ $(git log -1 --pretty=format:"%s") =~ "[skip release]" ]]; then false; else true; fi
 
     - name: Set up JDK 8
       if: steps.checkskip.conclusion == 'success'
