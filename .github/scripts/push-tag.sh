@@ -1,6 +1,11 @@
 #!/bin/bash
 set -ev
 
+if [[ $(git log -1 --pretty=format:"%s") =~ "[skip release]" ]]; then
+  echo 'Stopping the script because [skip release] was found in commit message'
+  exit 0
+fi
+
 # Prepare release
 git config user.name "GitHub Action"
 git config user.email "ARTIFACT_SERVICE_SUPPORT@here.com"
