@@ -8,3 +8,13 @@
 # check that build succeeded for the same custom home locations
 > reload
 > package
+
+#check build with only sbt.ivy.home defined
+> eval System.setProperty("sbt.ivy.home", "/tmp/custom-ivy-home")
+> reload
+> package
+
+#check build with only ivy.home defined
+> eval System.setProperty("ivy.home", "/tmp/custom-ivy-home")
+> reload
+> package
