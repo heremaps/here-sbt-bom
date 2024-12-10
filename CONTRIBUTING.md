@@ -67,6 +67,10 @@ This step runs integration tests located in the `plugin/src/sbt-test/sv` folder
 
 #### `Release` workflow
 
+> You can skip the release workflow, by adding this text to the commit message:
+
+`[skip release]`
+
 ##### `Push git tag` step
 The step increments the current version and pushes a new git tag
 
