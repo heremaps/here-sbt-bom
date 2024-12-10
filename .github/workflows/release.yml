@@ -11,19 +11,24 @@ jobs:
   release:
 
     runs-on: ubuntu-22.04
-    if: "!contains(github.event.head_commit.message, '[skip release]') && github.event.workflow_run.conclusion == 'success'"
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
+    - name: Check Skip Commit
+      id: checkskip
+      run: if [[ $(git log -1 --pretty=format:"%s") =~ "\[skip release\]" ]]; then false; else true; fi
     - uses: actions/checkout@v3
       with:
         ref: master
         fetch-depth: 0
     - name: Set up JDK 8
+      if: steps.checkskip.conclusion == 'success'
       uses: actions/setup-java@v3
       with:
         java-version: '8'
         distribution: 'adopt'
     - name: Cache SBT
+      if: steps.checkskip.conclusion == 'success'
       uses: actions/cache@v3
       with:
         path: |
@@ -31,8 +36,10 @@ jobs:
           ~/.sbt
         key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt', 'project/**') }}
     - name: Push git tag
+      if: steps.checkskip.conclusion == 'success'
       run: ./.github/scripts/push-tag.sh
     - name: Deploy
+      if: steps.checkskip.conclusion == 'success'
       env:
         OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
