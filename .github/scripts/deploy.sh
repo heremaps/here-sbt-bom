@@ -1,6 +1,11 @@
 #!/bin/bash
 set -ev
 
+if [[ $(git log -1 --pretty=format:"%s") =~ "[skip release]" ]]; then
+  echo 'Stopping the script because [skip release] was found in commit message'
+  exit 0
+fi
+
 export GPG_TTY=$(tty)
 export SONATYPE_USERNAME=$OSSRH_USERNAME
 export SONATYPE_PASSWORD=$OSSRH_PASSWORD
