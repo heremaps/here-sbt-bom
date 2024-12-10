@@ -14,13 +14,16 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
-    - name: Check Skip Commit
-      id: checkskip
-      run: if [[ $(git log -1 --pretty=format:"%s") =~ "\[skip release\]" ]]; then false; else true; fi
+
     - uses: actions/checkout@v3
       with:
         ref: master
         fetch-depth: 0
+
+    - name: Check Skip Commit
+      id: checkskip
+      run: if [[ $(git log -1 --pretty=format:"%s") =~ "\[skip release\]" ]]; then false; else true; fi
+
     - name: Set up JDK 8
       if: steps.checkskip.conclusion == 'success'
       uses: actions/setup-java@v3
