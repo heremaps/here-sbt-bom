@@ -86,7 +86,6 @@ lazy val `sbt-bom` = project
       scriptedLaunchOpts.value ++
         Seq("-Dplugin.version=" + version.value)
     },
-    scriptedBufferLog := false,
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "3.2.15" % Test,
       "org.scalamock" %% "scalamock" % "5.2.0" % Test
