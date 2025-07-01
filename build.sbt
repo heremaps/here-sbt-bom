@@ -2,7 +2,6 @@ import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 import sbtrelease.Version
 import scala.xml.{Node => XmlNode, NodeSeq => XmlNodeSeq, _}
 import scala.xml.transform._
-import xerial.sbt.Sonatype.sonatypeCentralHost
 
 val organizationSettings: Seq[Setting[_]] = Seq(
   scalaVersion := "2.12.15",
@@ -94,7 +93,7 @@ lazy val `sbt-bom` = project
   )
 
 lazy val publishSettings = Seq(
-  ThisBuild / publishTo := {
+  publishTo := {
     val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
     if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
     else localStaging.value
@@ -102,7 +101,6 @@ lazy val publishSettings = Seq(
   pomIncludeRepository := { _ => false },
   publishMavenStyle := true,
   sbtPluginPublishLegacyMavenStyle := false,
-  sonatypeCredentialHost := sonatypeCentralHost,
   publishConfiguration := publishConfiguration.value.withOverwrite(true)
 )
 
@@ -120,7 +118,6 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 useGpgAgent := false
 useGpgPinentry := true
-sonatypeProfileName := "com.here"
 
 // Defines the release process
 releaseIgnoreUntrackedFiles := true
