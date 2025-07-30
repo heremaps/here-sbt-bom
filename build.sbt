@@ -93,15 +93,14 @@ lazy val `sbt-bom` = project
   )
 
 lazy val publishSettings = Seq(
-  ThisBuild / publishTo := {
-    val nexus = "https://oss.sonatype.org/"
-    if (isSnapshot.value)
-      Some("snapshots" at nexus + "content/repositories/snapshots")
-    else
-      Some("releases" at nexus + "service/local/staging/deploy/maven2")
+  publishTo := {
+    val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+    if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+    else localStaging.value
   },
   pomIncludeRepository := { _ => false },
   publishMavenStyle := true,
+  sbtPluginPublishLegacyMavenStyle := false,
   publishConfiguration := publishConfiguration.value.withOverwrite(true)
 )
 
@@ -119,7 +118,6 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 useGpgAgent := false
 useGpgPinentry := true
-sonatypeProfileName := "com.here"
 
 // Defines the release process
 releaseIgnoreUntrackedFiles := true
