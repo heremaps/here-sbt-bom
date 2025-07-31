@@ -77,7 +77,6 @@ lazy val `root` = project
 lazy val `sbt-bom` = project
   .in(file("plugin"))
   .enablePlugins(SbtPlugin)
-  .settings(publishSettings)
   .settings(commonSettings)
   .settings(
     Compile / unmanagedResources ++= Seq(baseDirectory.value / "LICENSE"),
@@ -92,17 +91,17 @@ lazy val `sbt-bom` = project
     )
   )
 
-lazy val publishSettings = Seq(
-  publishTo := {
-    val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
-    if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
-    else localStaging.value
-  },
-  pomIncludeRepository := { _ => false },
-  publishMavenStyle := true,
-  sbtPluginPublishLegacyMavenStyle := false,
-  publishConfiguration := publishConfiguration.value.withOverwrite(true)
-)
+ThisBuild / publishTo := {
+  val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+  if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+  else localStaging.value
+}
+
+ThisBuild / pomIncludeRepository := { _ => false }
+ThisBuild / publishMavenStyle := true
+ThisBuild / sbtPluginPublishLegacyMavenStyle := false
+
+ThisBuild / publishConfiguration := publishConfiguration.value.withOverwrite(true)
 
 ThisBuild / pomExtra :=
   <licenses>
