@@ -39,7 +39,10 @@ This will enable the project to access plugin files stored in Maven Central, htt
 
 ### Read & use a BOM
 
-There are different ways to use the plugin depending on your use case.
+There are 3 different ways to use the plugin depending on your use case:
+- [`Bom.dependencies`](#use-it-in-dependencyoverrides--bomdependencies): for usage in `dependencyOverrides` only
+- [`Bom.apply`](#use-it-in-dependencyoverrides-and-librarydependencies-bomapply): for usage in `dependencyOverrides` and `libraryDependencies`
+- [`Bom.read`](#custom-usage-bomread): for custom usage
 
 #### Use it in `dependencyOverrides`  (`Bom.dependencies`)
 
