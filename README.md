@@ -1,5 +1,5 @@
 [![Build Status](https://github.com/heremaps/here-sbt-bom/actions/workflows/release.yml/badge.svg)](https://github.com/heremaps/here-sbt-bom/actions?query=workflow%3ARelease+branch%3Amaster)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.here.platform/root_2.12/badge.svg)](https://search.maven.org/artifact/com.here.platform/sbt-bom_2.12_1.0)
+[![Sonatype Central](https://maven-badges.sml.io/sonatype-central/com.here.platform/sbt-bom_2.12_1.0/badge.svg?style=flat)](https://central.sonatype.com/artifact/com.here.platform/sbt-bom_2.12_1.0)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 # HERE SBT BOM plugin
@@ -23,8 +23,10 @@ The following text provides a step-by-step guide on how to import [Jackson BOM](
 
 Add the `sbt-bom` plugin to `plugins.sbt` file.
 ```scala
-addSbtPlugin("com.here.platform" % "sbt-bom" % "1.0.14")
+addSbtPlugin("com.here.platform" % "sbt-bom" % "x.y.z") // Check latest version below
 ```
+
+Latest version: ![Sonatype Central](https://maven-badges.sml.io/sonatype-central/com.here.platform/sbt-bom_2.12_1.0/badge.svg?style=social)
 
 #### Add Maven central repository in your resolvers
 
