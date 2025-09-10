@@ -23,7 +23,7 @@ The following text provides a step-by-step guide on how to import [Jackson BOM](
 
 Add the `sbt-bom` plugin to `plugins.sbt` file.
 ```scala
-addSbtPlugin("com.here.platform" % "sbt-bom" % "x.y.z") // Check latest version below
+addSbtPlugin("com.here.platform" %% "sbt-bom" % "x.y.z") // Check latest version below
 ```
 
 Latest version: ![Sonatype Central](https://maven-badges.sml.io/sonatype-central/com.here.platform/sbt-bom_2.12_1.0/badge.svg?style=social)
@@ -35,7 +35,8 @@ If you're encountering issues or using earlier versions, you might have to expli
 resolvers += Resolver.url(
   "MAVEN_CENTRAL",
   url("https://repo.maven.apache.org/maven2"))(
-  Patterns("[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]") )
+  Patterns("[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]", 
+  "[organisation]/[module]/[revision]/[artifact]_[scalaVersion]_[sbtVersion]-[revision](-[classifier]).[ext]") )
 ```
 This will enable the project to access plugin files stored in Maven Central, https://repo.maven.apache.org/maven2/com/here/platform/sbt-bom_2.12_1.0/.
 
