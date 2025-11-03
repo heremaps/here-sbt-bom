@@ -18,9 +18,11 @@
  */
 package com.here.bom.internal
 
+import lmcoursier.internal.shaded.coursier.core.shaded.geny.Generator.from
 import sbt.File
 import sbt.util.Logger
 
+import java.net.{URI, URL}
 import java.io.FileInputStream
 import java.util.Properties
 import scala.collection.JavaConverters.*
@@ -106,75 +108,90 @@ class IvyPomLocator(resolver: DependencyResolutionProxy, ivyHome: File, logger: 
     }
   }
 
-  def findLocalPomFile(moduleId: NormalizedArtifact): Option[File] = {
-    /*
-    If the artifact was resolved by Ivy, the pom file will be stored under .ivy2 directory.
-    But if it was previously resolved by Maven, Ivy will not download it second time and just store the reference
-    Original POM file could be under either .ivy or .m2 directory:
+  private def findLocalPomFile(moduleId: NormalizedArtifact): Option[File] =
+    resolvePomUrl(moduleId).flatMap(urlToLocalFile)
 
-    Examples:
-    1) Pom file under .ivy directory:
-        $ ~/s/vsvu-utils (batch-support)> cat ~/.ivy2/cache/com.here.platform/sdk-dep-common_2.12/ivydata-1.0.46.properties
-        #ivy cached data file for com.here.platform#sdk-dep-common_2.12;1.0.46
-        #Mon Jan 17 12:20:26 CET 2022
-        artifact\:sdk-dep-common_2.12\#pom.original\#pom\#-691773007.location=~/.m2/repository/com/here/platform/sdk-dep-common_2.12/1.0.46/sdk-dep-common_2.12-1.0.46.pom
-        artifact\:sdk-dep-common_2.12\#pom.original\#pom\#-691773007.is-local=true
-        artifact\:sdk-dep-common_2.12\#pom.original\#pom\#-691773007.exists=true
-        artifact\:ivy\#ivy\#xml\#-1235680096.exists=true
-        artifact\:ivy\#ivy\#xml\#-1235680096.location=~/.m2/repository/com/here/platform/sdk-dep-common_2.12/1.0.46/sdk-dep-common_2.12-1.0.46.pom
-        resolver=sbt-chain
-        artifact\:ivy\#ivy\#xml\#-1235680096.is-local=true
-     2) Pom file downloaded by Maven first:
-        $ ~/s/vsvu-utils (batch-support)> cat ~/.ivy2/cache/com.here.platform/sdk-dep-common_2.12/ivydata-1.0.47.properties
-        #ivy cached data file for com.here.platform#sdk-dep-common_2.12;1.0.47
-        #Thu Jan 06 12:38:21 CET 2022
-        artifact\:sdk-dep-common_2.12\#pom.original\#pom\#-691766754.is-local=false
-        artifact\:sdk-dep-common_2.12\#pom.original\#pom\#-691766754.exists=true
-        artifact\:ivy\#ivy\#xml\#-1235673843.exists=true
-        artifact\:ivy\#ivy\#xml\#-1235673843.location=https\://artifactory.in.here.com/artifactory/here-olp-sit/com/here/platform/sdk-dep-common_2.12/1.0.47/sdk-dep-common_2.12-1.0.47.pom
-        artifact\:ivy\#ivy\#xml\#-1235673843.is-local=false
-        artifact\:sdk-dep-common_2.12\#pom.original\#pom\#-691766754.location=https\://artifactory.in.here.com/artifactory/here-olp-sit/com/here/platform/sdk-dep-common_2.12/1.0.47/sdk-dep-common_2.12-1.0.47.pom
-     */
-    val localIvyPomLocation = new File(
-      ivyHome,
-      s"/cache/${moduleId.group}/${moduleId.name}/ivy-${moduleId.version}.xml.original"
-    )
-    if (localIvyPomLocation.exists()) {
-      logger.debug(f"Found local pom file: $localIvyPomLocation")
-      Some(localIvyPomLocation)
-    } else {
-      val ivyPropsFile = new File(
-        ivyHome,
-        s"/cache/${moduleId.group}/${moduleId.name}/ivydata-${moduleId.version}.properties"
-      )
-      logger.debug(f"Trying to load local pom file: $ivyPropsFile")
-      referencedPomLocation(ivyPropsFile)
-    }
+  def getPomUrl(moduleId: NormalizedArtifact): Option[URL] =
+    resolvePomUrl(moduleId)
+
+  /** Canonical local ivy original path (if Ivy materialized it). */
+  private def ivyOriginalPath(m: NormalizedArtifact): File =
+    new File(ivyHome, s"/cache/${m.group}/${m.name}/ivy-${m.version}.xml.original")
+
+  /** ivydata-<ver>.properties path. */
+  private def ivyDataPath(m: NormalizedArtifact): File =
+    new File(ivyHome, s"/cache/${m.group}/${m.name}/ivydata-${m.version}.properties")
+
+  /** Convert URL → File only for file: scheme. */
+  private def urlToLocalFile(u: URL): Option[File] =
+    if (u.getProtocol.equalsIgnoreCase("file")) Some(new File(u.toURI)) else None
+
+  /**
+   * If the artifact was resolved by Ivy, the POM will be under ~/.ivy2/cache/... as
+   * ivy-<ver>.xml.original. If it was previously resolved by Maven, Ivy may not download it again
+   * and only store a reference in ivydata-<ver>.properties. That .location can be a local
+   * filesystem path (~/.m2/...) or a remote URL (https://...).
+   *
+   * Examples: 1) Local POM (ivy):
+   * ~/.ivy2/cache/com.here.platform/sdk-dep-common_2.12/ivydata-1.0.46.properties
+   * artifact:...pom.original...location=~/.m2/repository/.../sdk-dep-common_2.12-1.0.46.pom ...
+   * is-local=true
+   *
+   * 2) Remote POM (downloaded by Maven first):
+   * ~/.ivy2/cache/com.here.platform/sdk-dep-common_2.12/ivydata-1.0.47.properties
+   * artifact:...pom.original...location=https://artifactory.../sdk-dep-common_2.12-1.0.47.pom ...
+   * is-local=false
+   *
+   * Resolution strategy:
+   *   - If ivy-<ver>.xml.original exists => return its file: URL.
+   *   - Else read ivydata .location: * if it parses as URL with scheme => return that URL (handles
+   *     https:// or file:/) * else if it's a filesystem path that exists => return file: URL * else
+   *     \=> None
+   */
+
+  private def resolvePomUrl(moduleId: NormalizedArtifact): Option[URL] = {
+    val local = ivyOriginalPath(moduleId)
+    if (local.exists()) return Some(local.toURI.toURL)
+    referencedPomUrl(ivyDataPath(moduleId))
   }
 
-  private def referencedPomLocation(ivyPropertyFile: File): Option[File] = {
-    val properties = new Properties()
-    if (ivyPropertyFile.exists()) {
-      val is = new FileInputStream(ivyPropertyFile)
-      try {
-        properties.load(is)
-      } finally {
-        is.close()
-      }
+  /** Read a usable URL from ivydata (normalizes “https\://”, handles file paths). */
+  private def referencedPomUrl(ivyPropertyFile: File): Option[URL] = {
+    if (!ivyPropertyFile.exists()) return None
 
-      val locationKey =
-        properties.keys().asScala.find(key => key.asInstanceOf[String].endsWith(".location"))
-      if (locationKey.isEmpty) {
-        logger.warn(f"No *.location entry in the file $ivyPropertyFile")
+    val properties = new Properties()
+    val is = new FileInputStream(ivyPropertyFile)
+    try properties.load(is)
+    finally is.close()
+
+    val locationKeyOpt: Option[String] =
+      properties
+        .keys()
+        .asScala
+        .collect { case s: String if s.endsWith(".location") => s }
+        .headOption
+
+    locationKeyOpt.flatMap { locationKey =>
+      val rawLocation0 = properties.getProperty(locationKey)
+      val rawLocation = Option(rawLocation0).map(_.replace("\\:", ":")) // normalize "https\://"
+
+      rawLocation.flatMap { loc =>
+        // Prefer interpreting as a URI; if it has a scheme, we’re done.
+        try {
+          val uri = new URI(loc)
+          if (uri.getScheme != null) Some(uri.toURL)
+          else {
+            // No scheme => treat as filesystem path and require it to exist.
+            val file = new File(loc)
+            if (file.exists()) Some(file.toURI.toURL) else None
+          }
+        } catch {
+          case _: Exception =>
+            // Fallback: treat as filesystem path if valid & exists.
+            val file = new File(loc)
+            if (file.exists()) Some(file.toURI.toURL) else None
+        }
       }
-      locationKey.map(k => {
-        val f = new File(properties.getProperty(k.asInstanceOf[String]))
-        require(f.exists(), s"File $f doesn't exist, is artifact cache corrupted?")
-        f
-      })
-    } else {
-      logger.debug(f"File: $ivyPropertyFile not exists")
-      None
     }
   }
 }
