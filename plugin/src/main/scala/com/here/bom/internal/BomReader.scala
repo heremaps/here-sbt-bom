@@ -64,10 +64,10 @@ class BomReader(pomLocator: IvyPomLocator, logger: Logger, scalaBinaryVersion: S
   }
 
   private def readPom(moduleId: NormalizedArtifact): PomReader = {
-    val pomFile = pomLocator
-      .getPomFile(moduleId)
+    val url = pomLocator
+      .getPomUrl(moduleId)
+      .orElse(pomLocator.getPomFile(moduleId).map(_.toURI.toURL))
       .getOrElse(sys.error(s"Failed to resolve ${moduleId}"))
-    val url = pomFile.asURL
     logger.debug(f"Reading pom file $url")
     new PomReader(url, new URLResource(url))
   }
