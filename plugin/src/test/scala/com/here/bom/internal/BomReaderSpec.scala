@@ -60,7 +60,7 @@ class BomReaderSpec extends AnyFlatSpec with Matchers with MockFactory {
         moduleId.group.equals("com.test") && moduleId.name
           .equals("test_bom_parent") && moduleId.version.equals("1.0")
       }))
-      .returns(Some(createMockPomFile("com.test", "test_bom", "1.0", false).toURI.toURL))
+      .returns(Some(createMockPomFile("com.test", "test_bom_parent", "1.0", false).toURI.toURL))
 
     (pomLocatorMock.getPomUrl _)
       .expects(where((moduleId: NormalizedArtifact) => {
