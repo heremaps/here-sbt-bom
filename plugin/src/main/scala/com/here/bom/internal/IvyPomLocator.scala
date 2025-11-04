@@ -116,11 +116,17 @@ class IvyPomLocator(resolver: DependencyResolutionProxy, ivyHome: File, logger: 
 
   /** Canonical local ivy original path (if Ivy materialized it). */
   private def ivyOriginalPath(moduleId: NormalizedArtifact): File =
-    new File(ivyHome, s"/cache/${moduleId.group}/${moduleId.name}/ivy-${moduleId.version}.xml.original")
+    new File(
+      ivyHome,
+      s"/cache/${moduleId.group}/${moduleId.name}/ivy-${moduleId.version}.xml.original"
+    )
 
   /** ivydata-<ver>.properties path. */
   private def ivyDataPath(moduleId: NormalizedArtifact): File =
-    new File(ivyHome, s"/cache/${moduleId.group}/${moduleId.name}/ivydata-${moduleId.version}.properties")
+    new File(
+      ivyHome,
+      s"/cache/${moduleId.group}/${moduleId.name}/ivydata-${moduleId.version}.properties"
+    )
 
   /** Convert URL → File only for file: scheme. */
   private def urlToLocalFile(u: URL): Option[File] =
