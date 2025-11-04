@@ -115,12 +115,12 @@ class IvyPomLocator(resolver: DependencyResolutionProxy, ivyHome: File, logger: 
     resolvePomUrl(moduleId)
 
   /** Canonical local ivy original path (if Ivy materialized it). */
-  private def ivyOriginalPath(m: NormalizedArtifact): File =
-    new File(ivyHome, s"/cache/${m.group}/${m.name}/ivy-${m.version}.xml.original")
+  private def ivyOriginalPath(moduleId: NormalizedArtifact): File =
+    new File(ivyHome, s"/cache/${moduleId.group}/${moduleId.name}/ivy-${moduleId.version}.xml.original")
 
   /** ivydata-<ver>.properties path. */
-  private def ivyDataPath(m: NormalizedArtifact): File =
-    new File(ivyHome, s"/cache/${m.group}/${m.name}/ivydata-${m.version}.properties")
+  private def ivyDataPath(moduleId: NormalizedArtifact): File =
+    new File(ivyHome, s"/cache/${moduleId.group}/${moduleId.name}/ivydata-${moduleId.version}.properties")
 
   /** Convert URL → File only for file: scheme. */
   private def urlToLocalFile(u: URL): Option[File] =
@@ -173,7 +173,7 @@ class IvyPomLocator(resolver: DependencyResolutionProxy, ivyHome: File, logger: 
 
     locationKeyOpt.flatMap { locationKey =>
       val rawLocation0 = properties.getProperty(locationKey)
-      val rawLocation = Option(rawLocation0).map(_.replace("\\:", ":")) // normalize "https\://"
+      val rawLocation = Option(rawLocation0).map(_.replace("\\:", ":"))
 
       rawLocation.flatMap { loc =>
         // Prefer interpreting as a URI; if it has a scheme, we’re done.
