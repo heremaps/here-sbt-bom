@@ -35,9 +35,9 @@ class BomReaderSpec extends AnyFlatSpec with Matchers with MockFactory {
 
     val bomReader = new BomReader(pomLocatorMock, loggerMock, scalaBinaryVersion)
 
-    (pomLocatorMock.getPomFile _)
+    (pomLocatorMock.getPomUrl _)
       .expects(*)
-      .returns(Some(createMockPomFile("com.test", "test_bom", "1.0", false)))
+      .returns(Some(createMockPomFile("com.test", "test_bom", "1.0", false).toURI.toURL))
 
     val bom = bomReader.makeBom(ModuleID("com.test", "test_bom", "1.0"))
     bom should not be (null)
@@ -55,19 +55,19 @@ class BomReaderSpec extends AnyFlatSpec with Matchers with MockFactory {
 
     val bomReader = new BomReader(pomLocatorMock, loggerMock, scalaBinaryVersion)
 
-    (pomLocatorMock.getPomFile _)
+    (pomLocatorMock.getPomUrl _)
       .expects(where((moduleId: NormalizedArtifact) => {
         moduleId.group.equals("com.test") && moduleId.name
           .equals("test_bom_parent") && moduleId.version.equals("1.0")
       }))
-      .returns(Some(createMockPomFile("com.test", "test_bom_parent", "1.0", false)))
+      .returns(Some(createMockPomFile("com.test", "test_bom", "1.0", false).toURI.toURL))
 
-    (pomLocatorMock.getPomFile _)
+    (pomLocatorMock.getPomUrl _)
       .expects(where((moduleId: NormalizedArtifact) => {
         moduleId.group.equals("com.test") && moduleId.name.equals("test_bom") && moduleId.version
           .equals("1.0")
       }))
-      .returns(Some(createMockPomFile("com.test", "test_bom", "1.0", true)))
+      .returns(Some(createMockPomFile("com.test", "test_bom", "1.0", true).toURI.toURL))
 
     val bom = bomReader.makeBom(ModuleID("com.test", "test_bom", "1.0"))
     bom should not be (null)
