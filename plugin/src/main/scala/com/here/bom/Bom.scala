@@ -36,29 +36,59 @@ object Bom {
 
   def apply(bomArtifact: ModuleID): Def.Setting[Bom] = read(bomArtifact)(identity[Bom])
 
+  def apply(bomArtifact: SettingKey[ModuleID]): Def.Setting[Bom] = read(bomArtifact)(identity[Bom])
+
   def read[T: Manifest](bomArtifact: ModuleID)(extract: Bom => T): Def.Setting[T] = {
     val name = s"bom_${bomArtifact.toString}_${counter.getAndIncrement()}"
     val key = SettingKey[T](name)
     key := {
       val logger = (update / sLog).value
-      val ivyConfig = InlineIvyConfiguration()
-        .withResolvers(
-          ((update / resolvers).value ++ (update / appResolvers).value.getOrElse(Seq.empty)).to
-        )
-        .withUpdateOptions((update / updateOptions).value)
-      loadCredentials(logger)
-      logger.debug(f"Ivy configuration used for the BOM dependency resolution: $ivyConfig")
-      val depRes = new DependencyResolutionProxy(IvyDependencyResolution(ivyConfig))
-      val ivyHome = (update / Keys.ivyPaths).value.ivyHome.get
-      IvyPomLocator.tweakIvyHome(logger)
-      val pomLocator = new IvyPomLocator(depRes, ivyHome, logger)
-      val reader = new BomReader(pomLocator, logger, scalaBinaryVersion.value)
-      val bom = reader.makeBom(bomArtifact)
-      extract(bom)
+      val res = (update / resolvers).value ++ (update / appResolvers).value.getOrElse(Seq.empty)
+      val options = (update / updateOptions).value
+      val ivyPaths = (update / Keys.ivyPaths).value
+      read(bomArtifact, logger, res, options, ivyPaths, scalaBinaryVersion.value)(extract)
     }
   }
 
+  def read[T: Manifest](bomArtifact: SettingKey[ModuleID])(extract: Bom => T): Def.Setting[T] = {
+    val name = s"bom_${bomArtifact.key.toString}_${counter.getAndIncrement()}"
+    val key = SettingKey[T](name)
+    key := {
+      val logger = (update / sLog).value
+      val res = (update / resolvers).value ++ (update / appResolvers).value.getOrElse(Seq.empty)
+      val options = (update / updateOptions).value
+      val ivyPaths = (update / Keys.ivyPaths).value
+      read(bomArtifact.value, logger, res, options, ivyPaths, scalaBinaryVersion.value)(extract)
+    }
+  }
+
+  private def read[T: Manifest](
+      bomArtifact: ModuleID,
+      logger: Logger,
+      resolvers: Seq[Resolver],
+      updateOptions: UpdateOptions,
+      ivyPaths: IvyPaths,
+      scalaBinaryVersion: String
+  )(extract: Bom => T): T = {
+    val ivyConfig = InlineIvyConfiguration()
+      .withResolvers(resolvers.toVector)
+      .withUpdateOptions(updateOptions)
+    loadCredentials(logger)
+    logger.debug(f"Ivy configuration used for the BOM dependency resolution: $ivyConfig")
+    val depRes = new DependencyResolutionProxy(IvyDependencyResolution(ivyConfig))
+    val ivyHome = ivyPaths.ivyHome.get
+    IvyPomLocator.tweakIvyHome(logger)
+    val pomLocator = new IvyPomLocator(depRes, ivyHome, logger)
+    val reader = new BomReader(pomLocator, logger, scalaBinaryVersion)
+    val bom = reader.makeBom(bomArtifact)
+    extract(bom)
+  }
+
   def dependencies(bomArtifact: ModuleID): Def.Setting[Seq[ModuleID]] = {
+    read(bomArtifact)(bom => bom.bomDependencies)
+  }
+
+  def dependencies(bomArtifact: SettingKey[ModuleID]): Def.Setting[Seq[ModuleID]] = {
     read(bomArtifact)(bom => bom.bomDependencies)
   }
 
