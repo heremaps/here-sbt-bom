@@ -36,4 +36,17 @@ class BomSpec extends AnyFunSuite with OneInstancePerTest with MockFactory {
     result should not be (null)
   }
 
+  test("bom setting key") {
+    val b = settingKey[ModuleID]("test")
+    b := {
+      ModuleID("", "", "")
+        .withCrossVersion(CrossVersion.full)
+        .withExtraAttributes(Map())
+        .withConfigurations(None)
+        .branch("")
+    }
+    val result = Bom.apply(b)
+    result should not be (null)
+  }
+
 }
