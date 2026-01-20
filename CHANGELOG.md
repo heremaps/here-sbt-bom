@@ -1,6 +1,10 @@
 ## Changes
 
 
+## 1.0.33
+
+Fix GitHub Action for changelog verification job
+
 ## 1.0.32
 
 Add [CHANGELOG.md](./CHANGELOG.md)
