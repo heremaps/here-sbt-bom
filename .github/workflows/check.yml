@@ -12,8 +12,29 @@ on:
 
 
 jobs:
-  check:
+  changelog:
+    runs-on: ubuntu-latest
 
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if CHANGELOG.md was modified
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+
+          echo "$CHANGED_FILES"
+
+          if ! echo "$CHANGED_FILES" | grep -q "^CHANGELOG.md$"; then
+            echo "❌ CHANGELOG.md was not changed in Pull Request!"
+            exit 1
+          fi
+
+          echo "✅ CHANGELOG.md was updated."
+
+  check:
     runs-on: ubuntu-22.04
 
     steps:

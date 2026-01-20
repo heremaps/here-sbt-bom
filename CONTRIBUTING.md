@@ -116,6 +116,10 @@ or the following SBT commands available in the project:
 * `scalafmtSbt` - formats sbt sources.
 * `scalafmtCheckAll` - checks that all project sources are properly formatted and fails otherwise.
 
+# CHANGELOG.md
+
+Please add a new section in the [CHANGELOG.md](./CHANGELOG.md) file for each change.
+
 # Commit Signing
 
 As part of filing a pull request we ask you to sign off the
