@@ -86,7 +86,7 @@ lazy val `sbt-bom` = project
         Seq("-Dplugin.version=" + version.value)
     },
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "3.2.15" % Test,
+      "org.scalatest" %% "scalatest" % "3.2.20" % Test,
       "org.scalamock" %% "scalamock" % "5.2.0" % Test
     )
   )
