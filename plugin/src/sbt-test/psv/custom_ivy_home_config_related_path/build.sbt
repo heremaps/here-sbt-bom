@@ -5,7 +5,7 @@ lazy val deps = Bom.read("com.fasterxml.jackson" % "jackson-bom" % "2.14.2")(bom
 
 lazy val `demo` = project
   .in(file("."))
-  .settings(scalaVersion := "2.12.15")
+  .settings(scalaVersion := "2.12.20")
   .enablePlugins(SbtPlugin)
   .settings(deps)
   .settings(

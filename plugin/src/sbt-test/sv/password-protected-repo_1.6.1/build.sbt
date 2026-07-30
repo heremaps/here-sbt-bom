@@ -5,7 +5,7 @@ lazy val deps = Bom.read("com.here.platform" %% "sdk-stream-bom" % "2.49.2")(bom
 
 lazy val `demo` = project
   .in(file("."))
-  .settings(scalaVersion := "2.12.15")
+  .settings(scalaVersion := "2.12.20")
   .settings(deps)
   .settings(
     name := "simple-test",

@@ -1,4 +1,4 @@
-addSbtPlugin("com.here.platform.artifact" % "sbt-resolver" % "2.0.24")
+addSbtPlugin("com.here.platform.artifact" % "sbt-resolver" % "2.0.40")
 
 sys.props.get("plugin.version") match {
   case Some(x) => addSbtPlugin("com.here.platform" % "sbt-bom" % x)

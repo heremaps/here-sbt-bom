@@ -4,7 +4,7 @@ import scala.xml.{Node => XmlNode, NodeSeq => XmlNodeSeq, _}
 import scala.xml.transform._
 
 val organizationSettings: Seq[Setting[_]] = Seq(
-  scalaVersion := "2.12.15",
+  scalaVersion := "2.12.20",
   organization := "com.here.platform",
   projectInfo := ModuleInfo(
     nameFormal = "HERE sbt-bom plugin",
