@@ -29,7 +29,7 @@ lazy val `test-downloaded-deps` = project
   .settings(akkaBom)
   .settings(
     name := "test-downloaded-deps",
-    scalaVersion := "2.13.2",
+    scalaVersion := "2.13.16",
     resolvers := Resolver.DefaultMavenRepository +: resolvers.value,
     libraryDependencies ++= akkaDependencies(akkaBom.key.value),
     dependencyOverrides ++= akkaBom.key.value.bomDependencies,
