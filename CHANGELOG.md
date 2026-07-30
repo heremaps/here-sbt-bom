@@ -1,5 +1,8 @@
 ## Changes
 
+## 1.0.34
+
+Updated Java version to 21
 
 ## 1.0.33
 
