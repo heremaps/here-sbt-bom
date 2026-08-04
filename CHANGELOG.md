@@ -1,5 +1,9 @@
 ## Changes
 
+## 1.0.35
+
+Fix test after Java 21 migration
+
 ## 1.0.34
 
 Updated Java version to 21

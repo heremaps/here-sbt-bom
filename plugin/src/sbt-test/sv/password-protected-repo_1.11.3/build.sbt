@@ -1,9 +1,15 @@
 import Dependencies._
 import com.here.bom.Bom
 
-lazy val deps = Bom.read("com.here.platform" %% "sdk-stream-bom" % "2.49.2")(bom => Dependencies(bom))
+ThisBuild / libraryDependencySchemes +=
+  "org.scala-lang.modules" %% "scala-xml" % "always"
 
-lazy val `demo` = project
+lazy val deps =
+  Bom.read("com.here.platform" %% "sdk-stream-bom" % "2.49.2")(
+    bom => Dependencies(bom)
+  )
+
+lazy val demo = project
   .in(file("."))
   .settings(scalaVersion := "2.12.20")
   .settings(deps)
@@ -14,4 +20,3 @@ lazy val `demo` = project
   )
 
 ThisBuild / resolvers ++= additionalResolvers
-
