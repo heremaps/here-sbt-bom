@@ -1,5 +1,8 @@
 ## Changes
 
+## 1.0.36
+Added a section in readme about sbt 2 migration
+
 ## 1.0.35
 
 Fix test after Java 21 migration

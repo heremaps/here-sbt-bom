@@ -13,8 +13,30 @@ The HERE platform SBT BOM plugin is provided "as is" and is not officially a par
 While there is no official support by HERE, you may still raise issues via GitHub. We may be able to help.
 
 ## Prerequisites
-This plugin is compatible with:
-- sbt 1.9.0 or newer
+
+This plugin supports sbt 1.9.0 and newer in the sbt 1.x line. It does not
+currently support sbt 2.
+
+## Using BOMs with sbt 2
+
+sbt 2 has native Maven BOM support. For basic BOM-managed version selection,
+import the BOM as a POM-only dependency and use `"*"` for dependencies whose
+versions should come from the BOM:
+
+```scala
+libraryDependencies ++= Seq(
+  ("com.fasterxml.jackson" % "jackson-bom" % "2.21.0").pomOnly(),
+  "com.fasterxml.jackson.core" % "jackson-core" % "*"
+)
+```
+
+See the [sbt documentation for Maven BOM usage](https://www.scala-sbt.org/2.x/docs/en/reference/sbt-update.html#maven-bom-bill-of-materials-usage).
+
+**Known caveat (observed with sbt 2.0.11):** native BOM resolution may fail to
+infer the version for a dependency whose BOM entry has
+`<scope>provided</scope>`. A compile-scoped BOM entry did provide a version
+when the consumer dependency was declared in sbt's `Provided` configuration.
+See [sbt/sbt#9937](https://github.com/sbt/sbt/issues/9937).
 
 ## How to use it
 The following text provides a step-by-step guide on how to import [Jackson BOM](https://github.com/FasterXML/jackson-bom) into an sbt project.
